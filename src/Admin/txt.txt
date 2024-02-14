@@ -1,0 +1,277 @@
+import React, { useState } from 'react';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Button from '@mui/material/Button';
+import InputLabel from '@mui/material/InputLabel';
+import Input from '@mui/material/Input';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import Typography from '@mui/material/Typography';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Firebase from "../Auth/Firebase";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#795548', // Chocolate
+    },
+    secondary: {
+      main: '#8B4513', // SaddleBrown
+    },
+  },
+});
+
+const Addproducts = () => {
+  const [productName, setProductName] = useState('');
+  const [rating, setRating] = useState('');
+  const [amount, setAmount] = useState('');
+  const [addSwitch, setAddSwitch] = useState(false);
+  const [image, setImage] = useState(null);
+
+  const handleSwitchChange = () => {
+    setAddSwitch(!addSwitch);
+  };
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    setImage(file);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    // Handle form submission logic here
+    console.log('Product Name:', productName);
+    console.log('Rating:', rating);
+    console.log('Amount:', amount);
+    console.log('Add Switch:', addSwitch);
+    console.log('Image:', image);
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Container component="main" maxWidth="xs">
+        <Paper elevation={3} style={{ padding: 20 }}>
+          <Typography component="h1" variant="h5" align="center" color="secondary.main">
+            Upload Products
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  label="Product Name"
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Rating"
+                  value={rating}
+                  onChange={(e) => setRating(e.target.value)}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} sx={{ backgroundColor: 'chocolate', color: 'white', padding: 2, borderRadius: 5 }}>
+                <InputLabel htmlFor="image-input" sx={{ color: 'white' }}>
+                  Choose Image to add to product
+                </InputLabel>
+                <Input
+                  type="file"
+                  id="image-input"
+                  onChange={handleImageUpload}
+                  endAdornment={<PhotoCamera position="end" />}
+                  sx={{ display: 'none' }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={addSwitch}
+                      onChange={handleSwitchChange}
+                      color="primary"
+                    />
+                  }
+                  label={addSwitch ? 'Remove' : 'Add'}
+                />
+              </Grid>
+            </Grid>
+            <Box mt={2}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{
+                  '&:hover': {
+                    backgroundColor: '#d2691e', // DarkOrange
+                  },
+                }}
+              >
+                Submit
+              </Button>
+            </Box>
+          </form>
+        </Paper>
+      </Container>
+    </ThemeProvider>
+  );
+};
+
+export default Addproducts;
+
+
+
+
+// DisplayData.js
+import React, { useState, useEffect } from 'react';
+import { firestore } from '../Auth/Firebase';
+
+const DisplayData = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const snapshot = await firestore.collection('products').get();
+
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setProducts(data);
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      <h2>Product List</h2>
+      <ul>
+        {products.map((product) => (
+          <li key={product.id}>
+            <strong>{product.productName}</strong>
+            <br />
+            Rating: {product.rating}
+            <br />
+            Amount: {product.amount}
+            <br />
+            <img
+              src={product.imageUrl}
+              alt={product.productName}
+              style={{ maxWidth: '100px', maxHeight: '100px' }}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default DisplayData;
+
+
+
+
+
+import * as React from 'react';
+import Link from '@mui/material/Link';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import Title from "./Title";
+import TableRow from '@mui/material/TableRow';
+
+// Generate Order Data
+function createData(id, date, name, shipTo, paymentMethod, amount) {
+  return { id, date, name, shipTo, paymentMethod, amount };
+}
+
+const rows = [
+  createData(
+    0,
+    '16 Mar, 2019',
+    'Elvis Presley',
+    'Tupelo, MS',
+    'VISA ⠀•••• 3719',
+    312.44,
+  ),
+  createData(
+    1,
+    '16 Mar, 2019',
+    'Paul McCartney',
+    'London, UK',
+    'VISA ⠀•••• 2574',
+    866.99,
+  ),
+  createData(2, '16 Mar, 2019', 'Tom Scholz', 'Boston, MA', 'MC ⠀•••• 1253', 100.81),
+  createData(
+    3,
+    '16 Mar, 2019',
+    'Michael Jackson',
+    'Gary, IN',
+    'AMEX ⠀•••• 2000',
+    654.39,
+  ),
+  createData(
+    4,
+    '15 Mar, 2019',
+    'Bruce Springsteen',
+    'Long Branch, NJ',
+    'VISA ⠀•••• 5919',
+    212.79,
+  ),
+];
+
+function preventDefault(event) {
+  event.preventDefault();
+}
+
+export default function Orders() {
+  return (
+    <React.Fragment>
+      <Title sx={{colRecent Orders</Title>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Date</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Ship To</TableCell>
+            <TableCell>Payment Method</TableCell>
+            <TableCell align="right">Sale Amount</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell>{row.date}</TableCell>
+              <TableCell>{row.name}</TableCell>
+              <TableCell>{row.shipTo}</TableCell>
+              <TableCell>{row.paymentMethod}</TableCell>
+              <TableCell align="right">{`$${row.amount}`}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <Link color="primary" href="#" onClick={preventDefault} sx={{ mt: 3 }}>
+        See more orders
+      </Link>
+    </React.Fragment>
+  );
+}
